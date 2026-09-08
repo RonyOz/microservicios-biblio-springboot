@@ -5,6 +5,7 @@ import co.analisys.biblioteca.model.LibroId;
 import co.analisys.biblioteca.service.CatalogoService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,6 +47,7 @@ public class CatalogoController {
                     + "Se utiliza al prestar o devolver un libro."
     )
     @PutMapping("/{id}/disponibilidad")
+    @PreAuthorize("hasAnyRole('ADMIN', 'BIBLIOTECARIO')")
     public void actualizarDisponibilidad(@PathVariable String id, @RequestBody boolean disponible) {
         catalogoService.actualizarDisponibilidad(new LibroId(id), disponible);
     }
