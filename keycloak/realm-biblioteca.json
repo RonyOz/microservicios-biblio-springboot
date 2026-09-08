@@ -134,6 +134,12 @@
       "email": "lucas@biblioteca.local",
       "credentials": [{ "type": "password", "value": "1234", "temporary": false }],
       "realmRoles": ["LECTOR"]
+    },
+    {
+      "username": "service-account-circulacion",
+      "enabled": true,
+      "serviceAccountClientId": "circulacion",
+      "realmRoles": ["BIBLIOTECARIO"]
     }
   ]
 }
