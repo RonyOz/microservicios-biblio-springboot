@@ -1,0 +1,139 @@
+{
+  "realm": "biblioteca",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": false,
+  "duplicateEmailsAllowed": true,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "default-roles-biblioteca",
+        "composite": true,
+        "composites": { "realm": ["offline_access", "uma_authorization"] },
+        "clientRole": false
+      },
+      { "name": "offline_access", "clientRole": false },
+      { "name": "uma_authorization", "clientRole": false },
+      {
+        "name": "ADMIN",
+        "clientRole": false,
+        "composite": true,
+        "composites": { "realm": ["offline_access", "uma_authorization"] }
+      },
+      {
+        "name": "BIBLIOTECARIO",
+        "clientRole": false,
+        "composite": true,
+        "composites": { "realm": ["offline_access", "uma_authorization"] }
+      },
+      {
+        "name": "LECTOR",
+        "clientRole": false,
+        "composite": true,
+        "composites": { "realm": ["offline_access", "uma_authorization"] }
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "biblioteca-app",
+      "name": "Aplicacion biblioteca (frontend / pruebas)",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["http://localhost:8081/*", "http://localhost:8082/*", "http://localhost:8083/*", "http://localhost:8084/*"],
+      "webOrigins": ["http://localhost:8081", "http://localhost:8082", "http://localhost:8083", "http://localhost:8084"]
+    },
+    {
+      "clientId": "catalogo",
+      "name": "Microservicio Catalogo",
+      "enabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "secret": "catalogo-secret",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
+    },
+    {
+      "clientId": "circulacion",
+      "name": "Microservicio Circulacion",
+      "enabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "secret": "circulacion-secret",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
+    },
+    {
+      "clientId": "notificacion",
+      "name": "Microservicio Notificacion",
+      "enabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "secret": "notificacion-secret",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
+    },
+    {
+      "clientId": "usuarios",
+      "name": "Microservicio Usuarios",
+      "enabled": true,
+      "publicClient": false,
+      "protocol": "openid-connect",
+      "clientAuthenticatorType": "client-secret",
+      "secret": "usuarios-secret",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Admin",
+      "lastName": "Biblioteca",
+      "email": "admin@biblioteca.local",
+      "credentials": [{ "type": "password", "value": "1234", "temporary": false }],
+      "realmRoles": ["ADMIN"]
+    },
+    {
+      "username": "ana",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Ana",
+      "lastName": "Bibliotecaria",
+      "email": "ana@biblioteca.local",
+      "credentials": [{ "type": "password", "value": "1234", "temporary": false }],
+      "realmRoles": ["BIBLIOTECARIO"]
+    },
+    {
+      "username": "lucas",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Lucas",
+      "lastName": "Lector",
+      "email": "lucas@biblioteca.local",
+      "credentials": [{ "type": "password", "value": "1234", "temporary": false }],
+      "realmRoles": ["LECTOR"]
+    }
+  ]
+}

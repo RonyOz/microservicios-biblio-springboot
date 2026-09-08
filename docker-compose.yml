@@ -1,0 +1,36 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5
+    network_mode: host
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - ./keycloak/realm-biblioteca.json:/opt/keycloak/data/import/realm-biblioteca.json
+
+  usuarios:
+    build: ./microservicio-usuarios
+    network_mode: host
+    depends_on:
+      - keycloak
+
+  catalogo:
+    build: ./microservicio-catalogo
+    network_mode: host
+    depends_on:
+      - keycloak
+
+  circulacion:
+    build: ./microservicio-circulacion
+    network_mode: host
+    depends_on:
+      - keycloak
+      - catalogo
+      - notificacion
+
+  notificacion:
+    build: ./microservicio-notificacion
+    network_mode: host
+    depends_on:
+      - keycloak
