@@ -1,0 +1,399 @@
+{
+  "info": {
+    "name": "Biblioteca - Seguridad (Keycloak + JWT)",
+    "description": "Pruebas de seguridad para los 4 microservicios de la biblioteca. Flujo: obtener token en la carpeta 1, luego probar endpoints con token valido (200), sin token o invalido (401) y con rol incorrecto (403).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "kcUrl", "value": "http://localhost:8080/realms/biblioteca", "type": "string" },
+    { "key": "catalogoUrl", "value": "http://localhost:8082", "type": "string" },
+    { "key": "circulacionUrl", "value": "http://localhost:8083", "type": "string" },
+    { "key": "notificacionUrl", "value": "http://localhost:8084", "type": "string" },
+    { "key": "usuariosUrl", "value": "http://localhost:8081", "type": "string" },
+    { "key": "libroId", "value": "1", "type": "string" },
+    { "key": "usuarioId", "value": "1", "type": "string" },
+    { "key": "prestamoId", "value": "", "type": "string" },
+    { "key": "token_admin", "value": "", "type": "string" },
+    { "key": "token_ana", "value": "", "type": "string" },
+    { "key": "token_lucas", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1. Obtener tokens",
+      "item": [
+        {
+          "name": "Login admin (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "biblioteca-app" },
+                { "key": "username", "value": "admin" },
+                { "key": "password", "value": "1234" }
+              ]
+            },
+            "url": { "raw": "{{kcUrl}}/protocol/openid-connect/token", "host": ["{{kcUrl}}"], "path": ["protocol", "openid-connect", "token"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('token_admin', json.access_token);",
+                  "pm.test('Token obtenido', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login ana (BIBLIOTECARIO)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "biblioteca-app" },
+                { "key": "username", "value": "ana" },
+                { "key": "password", "value": "1234" }
+              ]
+            },
+            "url": { "raw": "{{kcUrl}}/protocol/openid-connect/token", "host": ["{{kcUrl}}"], "path": ["protocol", "openid-connect", "token"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('token_ana', json.access_token);",
+                  "pm.test('Token obtenido', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login lucas (LECTOR)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "password" },
+                { "key": "client_id", "value": "biblioteca-app" },
+                { "key": "username", "value": "lucas" },
+                { "key": "password", "value": "1234" }
+              ]
+            },
+            "url": { "raw": "{{kcUrl}}/protocol/openid-connect/token", "host": ["{{kcUrl}}"], "path": ["protocol", "openid-connect", "token"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.collectionVariables.set('token_lucas', json.access_token);",
+                  "pm.test('Token obtenido', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Sin token -> 401",
+      "item": [
+        {
+          "name": "Buscar libros (sin auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{catalogoUrl}}/libros/buscar?criterio=García",
+              "host": ["{{catalogoUrl}}"],
+              "path": ["libros", "buscar"],
+              "query": [{ "key": "criterio", "value": "García" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('401 Unauthorized', () => pm.response.to.have.status(401));"],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar prestamos (sin auth)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{circulacionUrl}}/circulacion/prestamos", "host": ["{{circulacionUrl}}"], "path": ["circulacion", "prestamos"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('401 Unauthorized', () => pm.response.to.have.status(401));"],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Token valido -> 200",
+      "item": [
+        {
+          "name": "Buscar libros (ana)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_ana}}" }],
+            "url": {
+              "raw": "{{catalogoUrl}}/libros/buscar?criterio=García",
+              "host": ["{{catalogoUrl}}"],
+              "path": ["libros", "buscar"],
+              "query": [{ "key": "criterio", "value": "García" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('200 OK', () => pm.response.to.have.status(200));"],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener libro 1 (ana)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_ana}}" }],
+            "url": { "raw": "{{catalogoUrl}}/libros/{{libroId}}", "host": ["{{catalogoUrl}}"], "path": ["libros", "{{libroId}}"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('200 OK', () => pm.response.to.have.status(200));"],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Prestar libro (ana - BIBLIOTECARIO)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_ana}}" }],
+            "url": {
+              "raw": "{{circulacionUrl}}/circulacion/prestar?usuarioId={{usuarioId}}&libroId={{libroId}}",
+              "host": ["{{circulacionUrl}}"],
+              "path": ["circulacion", "prestar"],
+              "query": [
+                { "key": "usuarioId", "value": "{{usuarioId}}" },
+                { "key": "libroId", "value": "{{libroId}}" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.response.to.have.body();"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar prestamos (admin - ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
+            "url": { "raw": "{{circulacionUrl}}/circulacion/prestamos", "host": ["{{circulacionUrl}}"], "path": ["circulacion", "prestamos"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "var json = pm.response.json();",
+                  "if (json.length > 0) pm.collectionVariables.set('prestamoId', json[0].prestamoid_value || json[0].prestamoId || '');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener usuario 1 (admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_admin}}" }],
+            "url": { "raw": "{{usuariosUrl}}/usuarios/{{usuarioId}}", "host": ["{{usuariosUrl}}"], "path": ["usuarios", "{{usuarioId}}"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('200 OK', () => pm.response.to.have.status(200));"],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Token invalido -> 401",
+      "item": [
+        {
+          "name": "Buscar libros (token basura)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer xxx.token.invalido" }],
+            "url": {
+              "raw": "{{catalogoUrl}}/libros/buscar?criterio=García",
+              "host": ["{{catalogoUrl}}"],
+              "path": ["libros", "buscar"],
+              "query": [{ "key": "criterio", "value": "García" }]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('401 Unauthorized', () => pm.response.to.have.status(401));"],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Rol incorrecto -> 403",
+      "item": [
+        {
+          "name": "Listar prestamos (lucas - LECTOR)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_lucas}}" }],
+            "url": { "raw": "{{circulacionUrl}}/circulacion/prestamos", "host": ["{{circulacionUrl}}"], "path": ["circulacion", "prestamos"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('403 Forbidden', () => pm.response.to.have.status(403));"],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Prestar libro (lucas - LECTOR)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token_lucas}}" }],
+            "url": {
+              "raw": "{{circulacionUrl}}/circulacion/prestar?usuarioId={{usuarioId}}&libroId={{libroId}}",
+              "host": ["{{circulacionUrl}}"],
+              "path": ["circulacion", "prestar"],
+              "query": [
+                { "key": "usuarioId", "value": "{{usuarioId}}" },
+                { "key": "libroId", "value": "{{libroId}}" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('403 Forbidden', () => pm.response.to.have.status(403));"],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cambiar disponibilidad (lucas - LECTOR)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_lucas}}" },
+              { "key": "Content-Type", "value": "text/plain" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "false"
+            },
+            "url": { "raw": "{{catalogoUrl}}/libros/{{libroId}}/disponibilidad", "host": ["{{catalogoUrl}}"], "path": ["libros", "{{libroId}}", "disponibilidad"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('403 Forbidden', () => pm.response.to.have.status(403));"],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cambiar email (lucas - LECTOR)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token_lucas}}" },
+              { "key": "Content-Type", "value": "text/plain" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "\"nuevo@email.com\""
+            },
+            "url": { "raw": "{{usuariosUrl}}/usuarios/{{usuarioId}}/email", "host": ["{{usuariosUrl}}"], "path": ["usuarios", "{{usuarioId}}", "email"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": ["pm.test('403 Forbidden', () => pm.response.to.have.status(403));"],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
