@@ -7,6 +7,7 @@ import co.analisys.biblioteca.model.UsuarioId;
 import co.analisys.biblioteca.service.CirculacionService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class CirculacionController {
                     "de lo contrario no podrá realizarse la operación."
     )
     @PostMapping("/prestar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'BIBLIOTECARIO')")
     public void prestarLibro(@RequestParam String usuarioId, @RequestParam String libroId) {
         circulacionService.prestarLibro(new UsuarioId(usuarioId), new LibroId(libroId));
     }
@@ -34,6 +36,7 @@ public class CirculacionController {
                     "Es necesario que el ID del préstamo exista en el sistema."
     )
     @PostMapping("/devolver")
+    @PreAuthorize("hasAnyRole('ADMIN', 'BIBLIOTECARIO')")
     public void devolverLibro(@RequestParam String prestamoId) {
         circulacionService.devolverLibro(new PrestamoId(prestamoId));
     }
@@ -45,6 +48,7 @@ public class CirculacionController {
                     "de lo contrario no podrá acceder a esta información."
     )
     @GetMapping("/prestamos")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<Prestamo> obtenerTodosPrestamos() {
         return circulacionService.obtenerTodosPrestamos();
     }
