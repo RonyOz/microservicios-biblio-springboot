@@ -9,6 +9,7 @@ import co.analisys.biblioteca.repository.PrestamoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +25,9 @@ public class CirculacionService {
 
     @Autowired
     private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private KafkaTemplate<String, NotificacionDTO> kafkaTemplate;
 
     @Transactional
     public void prestarLibro(UsuarioId usuarioId, LibroId libroId) {
@@ -58,7 +62,7 @@ public class CirculacionService {
         catalogoClient.actualizarDisponibilidad(prestamo.getLibroId().getLibroid_value(), true);
         NotificacionDTO notificacion = new NotificacionDTO(prestamo.getUsuarioId().getUsuarioid_value(),
                 "Libro devuelto: " + prestamo.getLibroId().getLibroid_value());
-        rabbitTemplate.convertAndSend("notificacion.exchange", "notificacion.routingkey", notificacion);
+        kafkaTemplate.send("devolucion-libro", notificacion);
     }
 
     public List<Prestamo> obtenerTodosPrestamos() {
